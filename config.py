@@ -16,9 +16,9 @@ TEMPLATES_DIR = BASE_DIR / "templates"
 UPLOADS_DIR = STATIC_DIR / "images"
 
 # Site settings
-SITE_NAME = "Drew's Portfolio"
+SITE_NAME = "My's Portfolio"
 SITE_DESCRIPTION = "Tech projects and blog"
-SITE_AUTHOR = "Andrew Hendrix"
+SITE_AUTHOR = "Your Name"
 
 # Admin settings
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "changeme123")
