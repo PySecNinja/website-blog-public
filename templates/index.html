@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+    <h1>Welcome to {{ site_name }}</h1>
+    <p>{{ site_description }}</p>
+</section>
+
+<section class="section">
+    <h2>Recent Posts</h2>
+    {% if posts %}
+    <div class="post-list">
+        {% for post in posts %}
+        <article class="post-card">
+            <h3><a href="/blog/{{ post.slug }}">{{ post.title }}</a></h3>
+            <time>{{ post.date.strftime('%B %d, %Y') }}</time>
+            {% if post.description %}
+            <p>{{ post.description }}</p>
+            {% endif %}
+            {% if post.tags %}
+            <div class="tags">
+                {% for tag in post.tags %}
+                <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+    <a href="/blog" class="btn">View All Posts</a>
+    {% else %}
+    <p>No posts yet. Check back soon!</p>
+    {% endif %}
+</section>
+
+<section class="section">
+    <h2>Featured Projects</h2>
+    {% if projects %}
+    <div class="project-grid">
+        {% for project in projects %}
+        <article class="project-card">
+            <h3><a href="/projects/{{ project.slug }}">{{ project.title }}</a></h3>
+            {% if project.description %}
+            <p>{{ project.description }}</p>
+            {% endif %}
+            {% if project.tags %}
+            <div class="tags">
+                {% for tag in project.tags %}
+                <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+    <a href="/projects" class="btn">View All Projects</a>
+    {% else %}
+    <p>No projects yet. Check back soon!</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} | {{ site_name }}{% endblock %}
+
+{% block content %}
+<article class="project-full">
+    <header class="project-header">
+        <h1>{{ project.title }}</h1>
+        {% if project.tags %}
+        <div class="tags">
+            {% for tag in project.tags %}
+            <span class="tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="project-links">
+            {% if project.github_url %}
+            <a href="{{ project.github_url }}" target="_blank" rel="noopener" class="btn">View on GitHub</a>
+            {% endif %}
+            {% if project.live_url %}
+            <a href="{{ project.live_url }}" target="_blank" rel="noopener" class="btn">Live Demo</a>
+            {% endif %}
+        </div>
+    </header>
+    <div class="project-content">
+        {{ project.content | safe }}
+    </div>
+    <footer class="project-footer">
+        <a href="/projects">&larr; Back to Projects</a>
+    </footer>
+</article>
+{% endblock %}

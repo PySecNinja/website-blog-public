@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login | {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="section admin-login">
+    <h1>Admin Login</h1>
+    {% if error %}
+    <div class="error-message">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="/admin/login" class="login-form">
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required autofocus>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+</section>
+{% endblock %}

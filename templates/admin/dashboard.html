@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="section admin-dashboard">
+    <div class="admin-header">
+        <h1>Admin Dashboard</h1>
+        <a href="/admin/logout" class="btn btn-secondary">Logout</a>
+    </div>
+
+    <div class="admin-section">
+        <div class="admin-section-header">
+            <h2>Blog Posts</h2>
+            <a href="/admin/posts/new" class="btn btn-primary">New Post</a>
+        </div>
+        {% if posts %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                <tr>
+                    <td><a href="/blog/{{ post.slug }}">{{ post.title }}</a></td>
+                    <td>{{ post.date.strftime('%Y-%m-%d') }}</td>
+                    <td><span class="status-badge {% if post.published %}status-published{% else %}status-draft{% endif %}">{{ 'Published' if post.published else 'Draft' }}</span></td>
+                    <td class="actions">
+                        <a href="/admin/posts/{{ post.slug }}/edit" class="btn btn-small">Edit</a>
+                        <form method="post" action="/admin/posts/{{ post.slug }}/delete" style="display:inline;" onsubmit="return confirm('Delete this post?')">
+                            <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No posts yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="admin-section">
+        <div class="admin-section-header">
+            <h2>Projects</h2>
+            <a href="/admin/projects/new" class="btn btn-primary">New Project</a>
+        </div>
+        {% if projects %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td><a href="/projects/{{ project.slug }}">{{ project.title }}</a></td>
+                    <td class="actions">
+                        <a href="/admin/projects/{{ project.slug }}/edit" class="btn btn-small">Edit</a>
+                        <form method="post" action="/admin/projects/{{ project.slug }}/delete" style="display:inline;" onsubmit="return confirm('Delete this project?')">
+                            <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No projects yet.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} | {{ site_name }}{% endblock %}
+
+{% block content %}
+<article class="post-full">
+    <header class="post-header">
+        <h1>{{ post.title }}</h1>
+        <div class="post-meta">
+            <time>{{ post.date.strftime('%B %d, %Y') }}</time>
+            <span class="reading-time">{{ post.reading_time }} min read</span>
+        </div>
+        <div class="post-author">By {{ site_author }}</div>
+        {% if post.tags %}
+        <div class="tags">
+            {% for tag in post.tags %}
+            <span class="tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </header>
+    {% if post.toc and post.toc|length > 2 %}
+    <nav class="toc">
+        <h4>Table of Contents</h4>
+        <ul>
+            {% for item in post.toc %}
+            <li class="toc-level-{{ item.level }}"><a href="#{{ item.id }}">{{ item.text }}</a></li>
+            {% endfor %}
+        </ul>
+    </nav>
+    {% endif %}
+    <div class="post-content">
+        {{ post.content | safe }}
+    </div>
+    <footer class="post-footer">
+        <a href="/blog">&larr; Back to Blog</a>
+    </footer>
+</article>
+{% endblock %}

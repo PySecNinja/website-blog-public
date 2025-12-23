@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}{% if item %}Edit{% else %}New{% endif %} {{ content_type | capitalize }} | {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="section admin-editor">
+    <h1>{% if item %}Edit{% else %}New{% endif %} {{ content_type | capitalize }}</h1>
+
+    <form method="post" class="editor-form">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" value="{{ item.title if item else '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="slug">Slug (URL path)</label>
+            <input type="text" id="slug" name="{% if item %}new_slug{% else %}slug{% endif %}" value="{{ item.slug if item else '' }}" required pattern="[a-z0-9-]+" title="Lowercase letters, numbers, and hyphens only">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" id="description" name="description" value="{{ item.description if item else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="tags">Tags (comma-separated)</label>
+            <input type="text" id="tags" name="tags" value="{{ item.tags | join(', ') if item and item.tags else '' }}">
+        </div>
+
+        {% if content_type == 'post' %}
+        <div class="form-group form-group-checkbox">
+            <label>
+                <input type="checkbox" id="published" name="published" {% if not item or item.published %}checked{% endif %}>
+                Published
+            </label>
+            <span class="form-hint">Uncheck to save as draft</span>
+        </div>
+        {% endif %}
+
+        {% if content_type == 'project' %}
+        <div class="form-group">
+            <label for="github_url">GitHub URL</label>
+            <input type="url" id="github_url" name="github_url" value="{{ item.github_url if item else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="live_url">Live Demo URL</label>
+            <input type="url" id="live_url" name="live_url" value="{{ item.live_url if item else '' }}">
+        </div>
+        {% endif %}
+
+        <div class="form-group editor-container">
+            <div class="editor-pane">
+                <div class="editor-toolbar">
+                    <label for="content">Content (Markdown)</label>
+                    <div class="toolbar-actions">
+                        <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                        <button type="button" class="btn btn-small btn-secondary" id="upload-btn">Upload Image</button>
+                    </div>
+                </div>
+                <textarea id="content" name="content" rows="20" required>{{ item.raw_content if item else '' }}</textarea>
+            </div>
+            <div class="preview-pane">
+                <label>Preview</label>
+                <div id="preview" class="preview-content"></div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+document.getElementById('title').addEventListener('input', function() {
+    const slugField = document.getElementById('slug');
+    if (!slugField.value || slugField.dataset.auto === 'true') {
+        slugField.value = this.value.toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .trim();
+        slugField.dataset.auto = 'true';
+    }
+});
+document.getElementById('slug').addEventListener('input', function() {
+    this.dataset.auto = 'false';
+});
+
+// Markdown preview
+const contentField = document.getElementById('content');
+const preview = document.getElementById('preview');
+
+function updatePreview() {
+    const markdown = contentField.value;
+    preview.innerHTML = marked.parse(markdown);
+}
+
+// Debounce function
+let debounceTimer;
+contentField.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(updatePreview, 150);
+});
+
+// Initial preview
+updatePreview();
+
+// Image upload
+const uploadBtn = document.getElementById('upload-btn');
+const imageInput = document.getElementById('image-upload');
+
+uploadBtn.addEventListener('click', function() {
+    imageInput.click();
+});
+
+imageInput.addEventListener('change', async function() {
+    const file = this.files[0];
+    if (!file) return;
+
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Uploading...';
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+        const response = await fetch('/admin/upload-image', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.url) {
+            // Insert markdown image at cursor position
+            const textarea = contentField;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const imageMarkdown = `![${file.name}](${data.url})`;
+
+            textarea.value = text.substring(0, start) + imageMarkdown + text.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + imageMarkdown.length;
+            textarea.focus();
+            updatePreview();
+        } else {
+            alert(data.error || 'Upload failed');
+        }
+    } catch (err) {
+        alert('Upload failed: ' + err.message);
+    } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Upload Image';
+        imageInput.value = '';
+    }
+});
+</script>
+{% endblock %}
